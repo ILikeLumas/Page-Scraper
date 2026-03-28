@@ -4,13 +4,7 @@ This project is a Python crawler/downloader for authorized websites, public-doma
 
 ## Important Safety And Compliance Warning
 
-Use this tool only on:
-
-- websites you own,
-- websites where you have explicit permission to crawl/download content,
-- clearly public-domain or openly licensed sources.
-
-This project is intentionally designed to be polite and constrained. It does **not** implement:
+This project is intentionally designed to be constrained. It does **not** implement:
 
 - login bypass,
 - paywall bypass,
