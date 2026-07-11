@@ -78,6 +78,8 @@ def main() -> int:
     manifest_path, summary = crawler.crawl(options)
     print(AUTHORIZED_USE_WARNING)
     print(f"Manifest saved to {manifest_path}")
+    if summary.report_path:
+        print(f"Crawl report saved to {summary.report_path}")
     print(f"Pages visited: {summary.pages_visited}")
     print(f"Downloads saved: {summary.downloads_saved}")
     if summary.failed_urls:

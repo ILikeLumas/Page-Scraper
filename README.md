@@ -1,8 +1,16 @@
 # Page Crawler
 
+[![Tests](https://github.com/ILikeLumas/Page-Scraper/actions/workflows/tests.yml/badge.svg)](https://github.com/ILikeLumas/Page-Scraper/actions/workflows/tests.yml)
+
 This project is a Python crawler/downloader for authorized websites, public-domain archives, and openly licensed sources.
 
 ## Important Safety And Compliance Warning
+
+Use this tool only on:
+
+- websites you own,
+- websites where you have explicit permission to crawl/download content,
+- clearly public-domain or openly licensed sources.
 
 This project is intentionally designed to be constrained. It does **not** implement:
 
@@ -31,6 +39,7 @@ The crawler is organized into focused modules:
 - `scraper/extractor.py`: link discovery, title extraction, text extraction, CSS selector extraction.
 - `scraper/downloader.py`: saves HTML, text, selected content, and linked documents into organized folders.
 - `scraper/manifest.py`: writes a JSON or CSV manifest of downloads.
+- `scraper/reporting.py`: writes crawl-level measurement and data-quality metrics.
 - `scraper/models.py`: crawl options, retry policy, manifest entries, and summary data.
 - `scraper/clients.py`: HTTP client and fixture client for tests.
 
@@ -41,6 +50,16 @@ Create a virtual environment and install dependencies:
 ```bash
 py -m pip install -r requirements.txt
 ```
+
+For local development and tests:
+
+```bash
+py -m pip install -e ".[dev]"
+```
+
+## Optional Executable Build
+
+`PageScrapper.spec` and `build_exe.bat` are kept as source files for local PyInstaller builds. Generated `build/`, `dist/`, and downloaded crawl outputs are intentionally excluded from the repository.
 
 ## Usage
 
@@ -54,6 +73,79 @@ Optional offline/demo mode with local fixtures:
 
 ```bash
 py -m scraper.cli https://authorized.local/library/index.html --mode text-only --allowed-domains authorized.local --fixture-root tests/fixtures --output-dir downloads
+```
+
+## Example Output
+
+The included fixtures let you run the crawler without touching a live website:
+
+```bash
+py -m scraper.cli https://authorized.local/library/index.html --mode text-only --allowed-domains authorized.local --fixture-root tests/fixtures --output-dir downloads/example --overwrite --requests-per-second 1000 --max-depth 2
+```
+
+Actual CLI output from the fixture run:
+
+```text
+Authorized/public-domain use only. Crawl only websites you own, have explicit permission to download from, or clearly public-domain/open-license sources.
+Manifest saved to downloads\example\manifest.json
+Crawl report saved to downloads\example\crawl_report.json
+Pages visited: 3
+Downloads saved: 3
+Skipped URLs:
+- https://authorized.local/library/files/book-one.pdf: document skipped for current mode
+- https://authorized.local/account/private.html: private-area safeguard
+- https://elsewhere.local/book.html: outside allowed domain
+- https://authorized.local/library/book-1.html: duplicate
+```
+
+Generated output structure:
+
+```text
+downloads/example/
+  crawl_report.json
+  manifest.json
+  text/
+    book-one.txt
+    book-two.txt
+    library-index.txt
+```
+
+Sample `manifest.json` entry:
+
+```json
+{
+  "source_url": "https://authorized.local/library/book-1.html",
+  "title": "Book One",
+  "local_filename": "book-one.txt",
+  "content_type": "txt",
+  "status": "saved",
+  "timestamp": "2026-07-11T05:21:01.917755+00:00",
+  "note": ""
+}
+```
+
+Sample `crawl_report.json`:
+
+```json
+{
+  "pages_requested": 3,
+  "pages_succeeded": 3,
+  "pages_failed": 0,
+  "downloads_saved": 3,
+  "duplicates_removed": 1,
+  "records_missing_title": 0,
+  "average_response_ms": 0.29,
+  "status_counts": {
+    "200": 3
+  },
+  "skipped_by_reason": {
+    "document skipped for current mode": 1,
+    "duplicate": 1,
+    "outside allowed domain": 1,
+    "private-area safeguard": 1
+  },
+  "failed_by_reason": {}
+}
 ```
 
 Examples:
@@ -118,9 +210,10 @@ py -m scraper.cli https://example.com/library/index.html --mode text-only --allo
 
 ## Output
 
-The crawler writes organized content folders plus a manifest:
+The crawler writes organized content folders, a manifest, and a crawl report:
 
 - `manifest.json` or `manifest.csv`
+- `crawl_report.json`
 - `html/`
 - `text/`
 - `selected/`
@@ -136,6 +229,19 @@ Manifest fields:
 - `timestamp`
 - `note`
 
+Report fields:
+
+- `pages_requested`
+- `pages_succeeded`
+- `pages_failed`
+- `downloads_saved`
+- `duplicates_removed`
+- `records_missing_title`
+- `average_response_ms`
+- `status_counts`
+- `skipped_by_reason`
+- `failed_by_reason`
+
 ## Testing
 
 Run tests locally with:
@@ -144,6 +250,8 @@ Run tests locally with:
 py -m pytest
 ```
 
+GitHub Actions also runs `pytest` on every push and pull request through `.github/workflows/tests.yml`.
+
 The tests cover:
 
 - URL normalization,
@@ -151,4 +259,9 @@ The tests cover:
 - domain restriction,
 - selector extraction,
 - manifest generation,
+- crawl report generation,
 - linked-document downloads using fixture HTML and document files.
+
+## License
+
+This project is released under the MIT License. See `LICENSE` for details.

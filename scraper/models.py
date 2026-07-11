@@ -97,8 +97,12 @@ class ManifestEntry:
 
 @dataclass(slots=True)
 class CrawlSummary:
+    pages_requested: int = 0
     pages_visited: int = 0
     downloads_saved: int = 0
     skipped_urls: list[dict[str, str]] = field(default_factory=list)
     failed_urls: list[dict[str, str]] = field(default_factory=list)
     visited_urls: list[str] = field(default_factory=list)
+    status_counts: dict[str, int] = field(default_factory=dict)
+    response_times_ms: list[float] = field(default_factory=list)
+    report_path: str = ""

@@ -14,6 +14,7 @@ from scraper.extractor import extract_links, extract_selected_content, extract_t
 from scraper.filters import detect_file_type, domain_allowed, is_document_url, normalize_url, pattern_allowed, should_skip_private_area
 from scraper.manifest import ManifestWriter
 from scraper.models import CrawlOptions, CrawlRequest, CrawlSummary, FetchResult, ManifestEntry
+from scraper.reporting import build_crawl_report, write_crawl_report
 
 LOGGER = logging.getLogger(__name__)
 
@@ -86,8 +87,14 @@ class PermissionCrawler:
             visited.add(normalized)
             queued_urls.discard(normalized)
             summary.visited_urls.append(normalized)
+            summary.pages_requested += 1
 
             fetch_result = self.fetch(normalized, options)
+            if fetch_result.status_code is not None:
+                status_key = str(fetch_result.status_code)
+                summary.status_counts[status_key] = summary.status_counts.get(status_key, 0) + 1
+            if fetch_result.elapsed_ms is not None:
+                summary.response_times_ms.append(fetch_result.elapsed_ms)
             if not fetch_result.ok:
                 summary.failed_urls.append({"url": normalized, "reason": fetch_result.error or "fetch failure"})
                 continue
@@ -152,6 +159,8 @@ class PermissionCrawler:
                     queued_urls.add(normalized_discovered)
 
         manifest_path = manifest_writer.save(manifest_entries)
+        report_path = write_crawl_report(options.output_dir, build_crawl_report(summary, manifest_entries))
+        summary.report_path = str(report_path)
         return manifest_path, summary
 
     def fetch(self, url: str, options: CrawlOptions) -> FetchResult:

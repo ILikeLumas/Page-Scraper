@@ -28,12 +28,19 @@ def test_crawler_prevents_duplicate_visits_and_respects_domain(tmp_path):
 
     manifest_path, summary = crawler.crawl(build_options(tmp_path, mode="text-only"))
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    report = json.loads((tmp_path / "crawl_report.json").read_text(encoding="utf-8"))
 
+    assert summary.pages_requested == 3
     assert summary.pages_visited == 3
     assert "https://authorized.local/library/book-1.html" in summary.visited_urls
     assert any(item["reason"] == "outside allowed domain" for item in summary.skipped_urls)
     assert any(item["reason"] == "duplicate" for item in summary.skipped_urls)
     assert len(manifest) == 3
+    assert report["pages_succeeded"] == 3
+    assert report["pages_failed"] == 0
+    assert report["duplicates_removed"] >= 1
+    assert report["records_missing_title"] == 0
+    assert report["status_counts"] == {"200": 3}
 
 
 def test_crawler_linked_documents_mode_downloads_allowed_documents(tmp_path):
