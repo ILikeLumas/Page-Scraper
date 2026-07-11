@@ -136,12 +136,6 @@ Manifest fields:
 - `timestamp`
 - `note`
 
-## Safe/Legal Example Use Cases
-
-- Download pages from your own documentation site for offline review.
-- Crawl a public-domain library section that openly provides downloadable PDFs or EPUBs.
-- Archive openly licensed articles from a site that explicitly permits crawling.
-
 ## Testing
 
 Run tests locally with:
