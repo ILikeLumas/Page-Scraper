@@ -2,33 +2,6 @@
 
 [![Tests](https://github.com/ILikeLumas/Page-Scraper/actions/workflows/tests.yml/badge.svg)](https://github.com/ILikeLumas/Page-Scraper/actions/workflows/tests.yml)
 
-This project is a Python crawler/downloader for authorized websites, public-domain archives, and openly licensed sources.
-
-## Important Safety And Compliance Warning
-
-Use this tool only on:
-
-- websites you own,
-- websites where you have explicit permission to crawl/download content,
-- clearly public-domain or openly licensed sources.
-
-This project is intentionally designed to be constrained. It does **not** implement:
-
-- login bypass,
-- paywall bypass,
-- anti-bot evasion,
-- CAPTCHA solving,
-- credential stuffing,
-- proxy rotation,
-- stealth features to defeat site protections.
-
-The crawler:
-
-- stays inside an allowlisted domain by default,
-- respects `robots.txt` unless you explicitly disable that check,
-- skips obvious private areas such as login, account, checkout, cart, and admin pages,
-- rate-limits requests and retries failures conservatively.
-
 ## Architecture
 
 The crawler is organized into focused modules:
